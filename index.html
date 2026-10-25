@@ -1,14 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8">
-<style>html,body,#map{width:100%;height:100%;margin:0}</style>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>重庆大学实景互动地图</title>
+<style>
+html,body,#map{width:100%;height:100%;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+/* 顶部校区切换 */
+.campus-bar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:20;
+  display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(255,255,255,.94);
+  box-shadow:0 6px 20px rgba(0,0,0,.18);backdrop-filter:blur(6px)}
+.campus-bar button{border:0;cursor:pointer;padding:9px 16px;border-radius:999px;min-height:40px;
+  font-size:14px;font-weight:700;color:#5F5E5A;background:transparent;transition:.2s;white-space:nowrap}
+.campus-bar button:hover{background:#F1EFE8}
+.campus-bar button.active{background:linear-gradient(135deg,#A01F23,#7D181B);color:#fff;
+  box-shadow:0 4px 12px rgba(160,31,35,.35)}
+.campus-tip{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
+  padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.9);color:#5F5E5A;
+  font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+@media (max-width:430px){
+  .campus-bar{top:10px;gap:4px;padding:4px}
+  .campus-bar button{padding:9px 12px;font-size:13px}
+}
+</style>
 <script>window._AMapSecurityConfig={securityJsCode:'251c489f063c19608360f7b90b0a139f'}</script>
 <script src="https://webapi.amap.com/maps?v=2.0&key=7612a9046340f31b909c3ced7043295b"></script>
 </head>
-<body><div id="map"></div>
-<script>
-var map = new AMap.Map('map',{zoom:15,viewMode:'3D',pitch:45});
+<body>
+<div id="map"></div>
 
+<div class="campus-bar" id="campusBar">
+  <button class="active" data-campus="ab">A·B 区</button>
+  <button data-campus="hx">虎溪校区</button>
+  <button data-campus="c">C 区</button>
+</div>
+<div class="campus-tip" id="campusTip">点图钉看名称</div>
+
+<script>
+/* ===== 默认视野：重庆大学 A 区中心，zoom 16（不显示全重庆市） ===== */
+var map = new AMap.Map('map',{
+  zoom: 16,
+  center: [106.468179, 29.565475],
+  viewMode: '3D',
+  pitch: 45,
+  pitchEnable: true,
+  buildingAnimation: true,
+  showBuildingBlock: true
+});
+
+/* ===== 校区切换：setZoomAndCenter 平滑切换 ===== */
+var CAMPUSES = {
+  ab: {center:[106.464500, 29.566200], zoom:16},
+  hx: {center:[106.299500, 29.594500], zoom:16},
+  c:  {center:[106.456500, 29.557600], zoom:17}
+};
+function switchCampus(key){
+  var c = CAMPUSES[key];
+  if(!c) return;
+  map.setZoomAndCenter(c.zoom, c.center);
+  var btns = document.querySelectorAll('#campusBar button');
+  for(var i=0;i<btns.length;i++){
+    btns[i].classList.toggle('active', btns[i].getAttribute('data-campus') === key);
+  }
+}
+document.querySelectorAll('#campusBar button').forEach(function(b){
+  b.addEventListener('click', function(){ switchCampus(b.getAttribute('data-campus')); });
+});
+
+/* ===== 所有图钉共用一个弹窗：点新的关旧的，禁止同时开多个 ===== */
+var infoWindow = new AMap.InfoWindow({
+  offset: new AMap.Pixel(0, -40),
+  isCustom: false,
+  autoMove: true
+});
+function openInfo(name, position){
+  infoWindow.setContent('<div style="padding:8px 10px;font-size:14px;white-space:nowrap">' + name + '</div>');
+  infoWindow.open(map, position);
+}
+/* 点地图空白处关闭弹窗 */
+map.on('click', function(){ infoWindow.close(); });
+var pointCount = 0;
 var data = `重庆大学A区图书馆，106.468179,29.565475
 重庆大学A区第一教学楼，106.461214,29.567605
 重庆大学A区第五教学楼，106.466924,29.5663
@@ -103,20 +174,19 @@ data.trim().split('\n').forEach(function(line){
   line = line.trim();
   if(!line) return;
   var p = line.split(/[ ， , ]/);
+  var position = [parseFloat(p[1]), parseFloat(p[2])];
+  pointCount++;
   var marker = new AMap.Marker({
-  position: [parseFloat(p[1]), parseFloat(p[2])],
+  position: position,
   label: {content: p[0], direction: 'top'}
 });
 marker.on('click', function(){
-  var info = new AMap.InfoWindow({
-    content: '<div style="padding:8px;font-size:14px;">' + p[0] + '</div>',
-    offset: new AMap.Pixel(0, -40)
-  });
-  info.open(map, [parseFloat(p[1]), parseFloat(p[2])]);
+  openInfo(p[0], position);
 });
 map.add(marker);
 });
-map.setFitView();
+var tipEl = document.getElementById('campusTip');
+if(tipEl) tipEl.textContent = '共 ' + pointCount + ' 个标注点 · 点图钉看名称';
 </script>
 </body>
 </html>
