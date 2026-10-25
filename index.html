@@ -6,21 +6,55 @@
 <style>
 html,body,#map{width:100%;height:100%;margin:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
-/* 顶部校区切换 */
-.campus-bar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:20;
-  display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(255,255,255,.94);
+
+/* ===== 顶部工具条：校区切换 + 校园漫游 ===== */
+.top-bar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:20;
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+.campus-bar{display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(255,255,255,.94);
   box-shadow:0 6px 20px rgba(0,0,0,.18);backdrop-filter:blur(6px)}
 .campus-bar button{border:0;cursor:pointer;padding:9px 16px;border-radius:999px;min-height:40px;
   font-size:14px;font-weight:700;color:#5F5E5A;background:transparent;transition:.2s;white-space:nowrap}
 .campus-bar button:hover{background:#F1EFE8}
 .campus-bar button.active{background:linear-gradient(135deg,#A01F23,#7D181B);color:#fff;
   box-shadow:0 4px 12px rgba(160,31,35,.35)}
+.roam-btn{border:0;cursor:pointer;min-height:44px;padding:10px 18px;border-radius:999px;white-space:nowrap;
+  font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,#FF7A45,#E24B4A);
+  box-shadow:0 8px 20px rgba(226,75,74,.35);transition:.2s}
+.roam-btn:hover{transform:translateY(-2px)}
+.roam-btn.active{background:linear-gradient(135deg,#5F5E5A,#2C2C2A)}
 .campus-tip{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
   padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.9);color:#5F5E5A;
-  font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+  font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.14);max-width:86vw;text-align:center}
+
+/* ===== 自定义弹窗卡片 ===== */
+.iw-card{position:relative;width:240px;background:#fff;border-radius:16px;overflow:hidden;
+  box-shadow:0 12px 32px rgba(31,36,48,.22);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.iw-card::after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);
+  width:0;height:0;border:8px solid transparent;border-top-color:#fff}
+/* 顶部实拍图（占位，替换方式见下方注释） */
+.iw-photo{height:120px;background:linear-gradient(135deg,#E9EDF2,#CBD3DC);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#7A838F}
+.iw-photo .ic{font-size:30px}
+.iw-photo .tx{font-size:12px;letter-spacing:.5px}
+.iw-x{position:absolute;top:8px;right:8px;width:28px;height:28px;border:0;border-radius:50%;
+  background:rgba(0,0,0,.35);color:#fff;font-size:15px;line-height:1;cursor:pointer}
+.iw-body{padding:10px 12px 12px}
+.iw-name{font-size:15px;font-weight:800;color:#1F242C;line-height:1.35}
+.iw-meta{margin-top:3px;font-size:12px;color:#7A838F}
+.iw-desc{margin-top:6px;font-size:12px;color:#4A5158;line-height:1.55}
+.iw-btns{display:flex;gap:8px;margin-top:10px}
+.iw-btn{flex:1;min-height:38px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;border:0}
+.iw-btn.nav{background:linear-gradient(135deg,#A01F23,#7D181B);color:#fff}
+.iw-btn.m3d{background:linear-gradient(135deg,#D8A44F,#B8860B);color:#fff}
+
 @media (max-width:430px){
-  .campus-bar{top:10px;gap:4px;padding:4px}
-  .campus-bar button{padding:9px 12px;font-size:13px}
+  .top-bar{top:10px;gap:6px}
+  .campus-bar{gap:4px;padding:4px}
+  .campus-bar button{padding:9px 12px;font-size:13px;min-height:40px}
+  .roam-btn{padding:10px 14px;font-size:13px}
+  .iw-card{width:220px}
+  .iw-photo{height:110px}
 }
 </style>
 <script>window._AMapSecurityConfig={securityJsCode:'251c489f063c19608360f7b90b0a139f'}</script>
@@ -29,18 +63,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <body>
 <div id="map"></div>
 
-<div class="campus-bar" id="campusBar">
-  <button class="active" data-campus="ab">A·B 区</button>
-  <button data-campus="hx">虎溪校区</button>
-  <button data-campus="c">C 区</button>
+<div class="top-bar">
+  <div class="campus-bar" id="campusBar">
+    <button class="active" data-campus="ab">A·B 区</button>
+    <button data-campus="hx">虎溪校区</button>
+    <button data-campus="c">C 区</button>
+  </div>
+  <button class="roam-btn" id="roamBtn">🎬 校园漫游</button>
 </div>
 <div class="campus-tip" id="campusTip">点图钉看名称</div>
 
 <script>
-/* ===== 默认视野：重庆大学 A 区中心，zoom 16（不显示全重庆市） ===== */
+/* ===== 初始视角：重庆大学 A 区，zoom 16 ===== */
+var INITIAL = {center:[106.468179, 29.565475], zoom:16};
 var map = new AMap.Map('map',{
-  zoom: 16,
-  center: [106.468179, 29.565475],
+  zoom: INITIAL.zoom,
+  center: INITIAL.center,
   viewMode: '3D',
   pitch: 45,
   pitchEnable: true,
@@ -48,7 +86,7 @@ var map = new AMap.Map('map',{
   showBuildingBlock: true
 });
 
-/* ===== 校区切换：setZoomAndCenter 平滑切换 ===== */
+/* ===== 校区切换 ===== */
 var CAMPUSES = {
   ab: {center:[106.464500, 29.566200], zoom:16},
   hx: {center:[106.299500, 29.594500], zoom:16},
@@ -57,6 +95,7 @@ var CAMPUSES = {
 function switchCampus(key){
   var c = CAMPUSES[key];
   if(!c) return;
+  stopRoam(false);
   map.setZoomAndCenter(c.zoom, c.center);
   var btns = document.querySelectorAll('#campusBar button');
   for(var i=0;i<btns.length;i++){
@@ -67,18 +106,145 @@ document.querySelectorAll('#campusBar button').forEach(function(b){
   b.addEventListener('click', function(){ switchCampus(b.getAttribute('data-campus')); });
 });
 
-/* ===== 所有图钉共用一个弹窗：点新的关旧的，禁止同时开多个 ===== */
+/* ===== 建筑信息：y = 建成年份（请替换为真实年份），d = 一句话简介 ===== */
+var BUILDING_INFO = {
+  '重庆大学A区图书馆':   {y:'待补充', d:'自习与借阅的主战场，期末复习一座难求'},
+  '重庆大学A区主教学楼': {y:'待补充', d:'A 区最大的教学楼，大部分公共课在这里上'},
+  '重庆大学A区第一教学楼':{y:'待补充', d:'老牌教学楼，靠近正门，上课通勤最方便'},
+  '重庆大学A区民主湖':   {y:'待补充', d:'A 区的标志性景观湖，报到打卡必到'},
+  '重庆大学A区团结广场': {y:'待补充', d:'开学典礼与大型活动的举办地'},
+  '重庆大学A区思群广场': {y:'待补充', d:'宿舍区旁的活动广场，傍晚很热闹'},
+  '重庆大学A区体育馆':   {y:'待补充', d:'室内球馆与体育课场地，刷校园卡进场'},
+  '重庆大学A区钟塔':     {y:'待补充', d:'A 区地标钟塔，认路用它最靠谱'},
+  '重庆大学A区正门':     {y:'待补充', d:'沙坪坝校区主校门，地铁与公交都在这侧'},
+  '重庆大学A区校医院':   {y:'待补充', d:'看病首诊在这里，大学生医保也在窗口登记'},
+  '重庆大学A区研究生院': {y:'待补充', d:'研究生教务与培养相关事务办理处'},
+  '重庆大学虎溪校区图书馆':{y:'待补充', d:'虎溪校区地标建筑，自习位最多'},
+  '重庆大学虎溪校区综合楼':{y:'待补充', d:'虎溪教学与行政综合楼，新生报到常来'},
+  '重庆大学虎溪校区云湖': {y:'待补充', d:'虎溪的景观湖，环湖是散步首选'},
+  '重庆大学虎溪校区体育中心体育馆':{y:'待补充', d:'虎溪大型体育赛事与体测场地'},
+  '重庆大学虎溪校区北门': {y:'待补充', d:'虎溪主校门，校车与小绿都在这里发车'}
+};
+/* 按类型兜底生成简介，避免留白 */
+function fallbackDesc(name){
+  if(/食堂|餐厅|美食城|咖啡/.test(name)) return '校内就餐点，校园卡直接刷卡';
+  if(/宿舍|舍/.test(name))   return '学生宿舍楼，一楼有门禁与宿管值班';
+  if(/教学楼|大楼|楼$/.test(name)) return '教学与自习楼栋，课表上的教室大多在这';
+  if(/图书馆/.test(name))    return '借阅与自习场所，考试周延长开放';
+  if(/体育馆|运动场|球场/.test(name)) return '运动场地，体育课与体测在这里';
+  if(/门/.test(name))        return '校园出入口，校外交通接驳点';
+  if(/快递|驿站|丰巢|顺丰|韵达/.test(name)) return '快递收发点，取件记得带取件码';
+  if(/校医院/.test(name))    return '校内医疗点，首诊与医保登记都在这';
+  if(/广场/.test(name))      return '校园开放空间，活动与集合常用地';
+  if(/湖/.test(name))        return '校园景观湖，休闲散步的好去处';
+  return '校园地点，点「导航到此」可直接带路';
+}
+function zoneOf(name){
+  if(name.indexOf('A区') >= 0) return 'A 区';
+  if(name.indexOf('B区') >= 0) return 'B 区';
+  if(name.indexOf('C区') >= 0) return 'C 区';
+  if(name.indexOf('虎溪') >= 0) return '虎溪校区';
+  if(name.indexOf('两江') >= 0) return '两江校区';
+  return '重庆大学';
+}
+function getInfo(name){
+  var b = BUILDING_INFO[name] || {};
+  return {zone:zoneOf(name), y:b.y || '待补充', d:b.d || fallbackDesc(name)};
+}
+
+/* ===== 单一自定义弹窗卡片 ===== */
 var infoWindow = new AMap.InfoWindow({
-  offset: new AMap.Pixel(0, -40),
-  isCustom: false,
-  autoMove: true
+  isCustom: true,
+  autoMove: true,
+  offset: new AMap.Pixel(0, -46)
 });
+function closeInfo(){ infoWindow.close(); }
+function navUrl(name, pos){
+  return 'https://uri.amap.com/marker?position=' + pos[0] + ',' + pos[1] +
+         '&name=' + encodeURIComponent(name) + '&src=cqu&coordinate=gaode&callnative=1';
+}
+function open3d(name){ window.open('3d.html?b=' + encodeURIComponent(name), '_blank'); }
+function cardHtml(name, pos){
+  var it = getInfo(name);
+  /* 照片位：把下面这个 div.iw-photo 整块换成
+     <img src="photos/建筑名.jpg" style="width:100%;height:120px;object-fit:cover;display:block"> 即可 */
+  return '<div class="iw-card" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">' +
+    '<div class="iw-photo"><div class="ic">🏛️</div><div class="tx">实拍图占位 · 待替换</div></div>' +
+    '<button class="iw-x" onclick="event.stopPropagation();closeInfo()">✕</button>' +
+    '<div class="iw-body">' +
+      '<div class="iw-name">' + name + '</div>' +
+      '<div class="iw-meta">📍 ' + it.zone + ' · 建成 ' + it.y + '</div>' +
+      '<div class="iw-desc">' + it.d + '</div>' +
+      '<div class="iw-btns">' +
+        '<a class="iw-btn nav" target="_blank" rel="noopener noreferrer" href="' + navUrl(name, pos) + '">📍 导航到此</a>' +
+        '<button class="iw-btn m3d" onclick="event.stopPropagation();open3d(\'' + name.replace(/'/g, '') + '\')">🏛️ 查看3D模型</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
 function openInfo(name, position){
-  infoWindow.setContent('<div style="padding:8px 10px;font-size:14px;white-space:nowrap">' + name + '</div>');
+  infoWindow.setContent(cardHtml(name, position));
   infoWindow.open(map, position);
 }
 /* 点地图空白处关闭弹窗 */
 map.on('click', function(){ infoWindow.close(); });
+
+/* ===== 🎬 校园漫游：依次飞到标志建筑，zoom 17，每个停 2 秒，结束回初始视角 ===== */
+var ROAM = [
+  {n:'A 区图书馆',   p:[106.468179, 29.565475]},
+  {n:'A 区主教学楼', p:[106.470586, 29.565988]},
+  {n:'A 区民主湖',   p:[106.469580, 29.562862]},
+  {n:'A 区团结广场', p:[106.469153, 29.566292]},
+  {n:'A 区思群广场', p:[106.468266, 29.564377]},
+  {n:'A 区钟塔',     p:[106.467472, 29.567302]},
+  {n:'A 区体育馆',   p:[106.472159, 29.564271]},
+  {n:'A 区正门',     p:[106.464154, 29.567409]},
+  {n:'虎溪图书馆',   p:[106.301947, 29.592234]},
+  {n:'虎溪云湖',     p:[106.302602, 29.593730]},
+  {n:'虎溪体育中心', p:[106.305525, 29.597715]}
+];
+var roaming = false, roamTimer = null, roamIdx = 0;
+var roamBtn = document.getElementById('roamBtn');
+var tipEl  = document.getElementById('campusTip');
+
+function setTip(text){ if(tipEl) tipEl.textContent = text || ('共 ' + pointCount + ' 个标注点 · 点图钉看名称'); }
+function flyTo(pos, zoom){
+  try{
+    if(typeof map.flyTo === 'function'){ map.flyTo({center:pos, zoom:zoom, pitch:60}); return; }
+  }catch(e){}
+  map.setZoomAndCenter(zoom, pos);
+}
+function roamStep(){
+  if(!roaming) return;
+  if(roamIdx >= ROAM.length){ stopRoam(true); return; }
+  var s = ROAM[roamIdx];
+  flyTo(s.p, 17);
+  setTip('🎬 正在漫游：' + s.n + '（' + (roamIdx + 1) + '/' + ROAM.length + '）');
+  roamIdx++;
+  roamTimer = setTimeout(roamStep, 2000);
+}
+function startRoam(){
+  infoWindow.close();
+  roaming = true; roamIdx = 0;
+  roamBtn.classList.add('active');
+  roamBtn.textContent = '⏹ 停止漫游';
+  roamStep();
+}
+function stopRoam(finished){
+  if(!roaming && !finished) return;
+  roaming = false;
+  if(roamTimer){ clearTimeout(roamTimer); roamTimer = null; }
+  roamBtn.classList.remove('active');
+  roamBtn.textContent = '🎬 校园漫游';
+  if(finished){
+    try{ map.setPitch(45); }catch(e){}
+    flyTo(INITIAL.center, INITIAL.zoom);
+    setTip('✅ 漫游结束，已回到 A 区初始视角');
+  }else{
+    setTip();
+  }
+}
+if(roamBtn) roamBtn.addEventListener('click', function(){ roaming ? stopRoam(false) : startRoam(); });
 var pointCount = 0;
 var data = `重庆大学A区图书馆，106.468179,29.565475
 重庆大学A区第一教学楼，106.461214,29.567605
@@ -185,8 +351,7 @@ marker.on('click', function(){
 });
 map.add(marker);
 });
-var tipEl = document.getElementById('campusTip');
-if(tipEl) tipEl.textContent = '共 ' + pointCount + ' 个标注点 · 点图钉看名称';
+setTip();
 </script>
 </body>
 </html>
