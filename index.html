@@ -22,9 +22,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   box-shadow:0 8px 20px rgba(226,75,74,.35);transition:.2s}
 .roam-btn:hover{transform:translateY(-2px)}
 .roam-btn.active{background:linear-gradient(135deg,#5F5E5A,#2C2C2A)}
-.campus-tip{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
+.campus-tip{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:20;
   padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.9);color:#5F5E5A;
   font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.14);max-width:86vw;text-align:center}
+
+/* ===== 底部隐私声明 ===== */
+.privacy{position:absolute;left:0;right:0;bottom:0;z-index:19;padding:5px 12px;text-align:center;
+  background:rgba(255,255,255,.88);border-top:1px solid rgba(31,36,48,.08);
+  font-size:11px;line-height:1.5;color:#7A838F}
+/* 把高德 logo / 版权信息抬到隐私声明上方，避免被遮挡 */
+.amap-logo,.amap-copyright{bottom:24px!important}
 
 /* ===== 自定义弹窗卡片 ===== */
 .iw-card{position:relative;width:240px;background:#fff;border-radius:16px;overflow:hidden;
@@ -42,11 +49,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .iw-name{font-size:15px;font-weight:800;color:#1F242C;line-height:1.35}
 .iw-meta{margin-top:3px;font-size:12px;color:#7A838F}
 .iw-desc{margin-top:6px;font-size:12px;color:#4A5158;line-height:1.55}
-.iw-btns{display:flex;gap:8px;margin-top:10px}
-.iw-btn{flex:1;min-height:38px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;border:0}
+.iw-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.iw-btn{flex:1 1 96px;min-height:38px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;white-space:nowrap;padding:0 6px}
+
+/* ===== 聚合点：低缩放级别下把相邻点位合并成一个 ===================== */
+.clu{width:52px;height:52px;border-radius:50%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:linear-gradient(135deg,#A01F23,#7D181B);
+  color:#fff;border:2px solid #fff;box-shadow:0 6px 16px rgba(160,31,35,.35);cursor:pointer}
+.clu b{font-size:15px;font-weight:900;line-height:1}
+.clu i{font-size:9px;font-style:normal;opacity:.85;margin-top:1px;letter-spacing:.5px}
 .iw-btn.nav{background:linear-gradient(135deg,#A01F23,#7D181B);color:#fff}
 .iw-btn.m3d{background:linear-gradient(135deg,#D8A44F,#B8860B);color:#fff}
+.iw-btn.walk{background:linear-gradient(135deg,#2B7FF0,#1863CC);color:#fff}
+
+/* ===== 起点标记 + 步行路线结果条 ===== */
+.start-pin{width:26px;height:26px;border-radius:50%;background:#2B7FF0;color:#fff;font-size:12px;
+  font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;
+  box-shadow:0 4px 10px rgba(43,127,240,.45)}
+.route-bar{position:absolute;left:50%;transform:translateX(-50%);bottom:74px;z-index:22;
+  width:min(92vw,430px);background:#fff;border-radius:14px;padding:10px 12px;
+  box-shadow:0 10px 28px rgba(31,36,48,.24);display:flex;gap:10px;align-items:center}
+.route-bar[hidden]{display:none}
+.rb-ic{font-size:22px;flex:none}
+.rb-main{flex:1;min-width:0}
+.rb-t{font-size:14px;font-weight:800;color:#1F242C;line-height:1.35}
+.rb-s{margin-top:2px;font-size:12px;color:#7A838F;line-height:1.4;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rb-acts{flex:none;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.rb-a{border:0;border-radius:999px;padding:8px 12px;min-height:36px;font-size:12px;font-weight:700;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;background:#F1EFE8;color:#4A5158}
+.rb-a.nav{background:linear-gradient(135deg,#A01F23,#7D181B);color:#fff}
 
 @media (max-width:430px){
   .top-bar{top:10px;gap:6px}
@@ -55,10 +88,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   .roam-btn{padding:10px 14px;font-size:13px}
   .iw-card{width:220px}
   .iw-photo{height:110px}
+  .route-bar{bottom:66px;padding:9px 10px;gap:8px}
+  .rb-t{font-size:13px}
+  .rb-a{padding:7px 10px;font-size:11px}
+  .privacy{font-size:10px;padding:4px 10px}
 }
 </style>
 <script>window._AMapSecurityConfig={securityJsCode:'251c489f063c19608360f7b90b0a139f'}</script>
-<script src="https://webapi.amap.com/maps?v=2.0&key=7612a9046340f31b909c3ced7043295b"></script>
+<!-- 外链脚本（第三方地图 SDK）
+     · crossorigin="anonymous"：以 CORS 模式加载，服务端返回 ACAO:* ，已实测通过
+     · referrerpolicy：Referer 只发 origin，减少信息泄露
+     · integrity 未启用，原因见紧邻下方的说明 -->
+<script src="https://webapi.amap.com/maps?v=2.0&key=7612a9046340f31b909c3ced7043295b&plugin=AMap.Walking"
+        crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin"></script>
+<!-- ⚠️ 关于给高德 SDK 加 integrity（SRI）：本项目默认不启用，原因是实测发现两点硬约束——
+     ① 服务端对这个 key 启用了「域名白名单」校验，不同来源返回的不是同一份内容
+        （非白名单来源实测返回 201 字节的 {"info":"INVALID_USER_DOMAIN","infocode":"10006"...}）；
+     ② 高德 JSAPI 2.0 由上游持续更新，脚本内容会变，一旦这里写死的 hash 与上游不一致，
+        浏览器会整段拒绝执行 SDK —— 结果是地图直接白屏，而不是"降级"。
+     如果你仍要启用：请在你自己的线上域名打开页面 → F12 Network → 复制该请求的完整响应体，
+     用 openssl 计算：cat sdk.js | openssl dgst -sha384 -binary | openssl base64 -A
+     填入 integrity="sha384-..." 即可，但请接受"上游一改版就要重算，否则地图下线"的维护成本。 -->
 </head>
 <body>
 <div id="map"></div>
@@ -72,6 +122,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   <button class="roam-btn" id="roamBtn">🎬 校园漫游</button>
 </div>
 <div class="campus-tip" id="campusTip">点图钉看名称</div>
+
+<div class="route-bar" id="routeBar" hidden>
+  <div class="rb-ic">🚶</div>
+  <div class="rb-main">
+    <div class="rb-t">步行 <b id="rbDist">—</b> · 约 <b id="rbTime">—</b></div>
+    <div class="rb-s" id="rbSub">正在规划…</div>
+  </div>
+  <div class="rb-acts">
+    <button class="rb-a nav" id="rbNavBtn" onclick="navRouteFromBar()">高德导航</button>
+    <button class="rb-a" onclick="clearStart()">改起点</button>
+    <button class="rb-a" onclick="clearRoute()">✕</button>
+  </div>
+</div>
 
 <script>
 /* ===== 初始视角：重庆大学 A 区，zoom 16 ===== */
@@ -106,39 +169,119 @@ document.querySelectorAll('#campusBar button').forEach(function(b){
   b.addEventListener('click', function(){ switchCampus(b.getAttribute('data-campus')); });
 });
 
-/* ===== 建筑信息：y = 建成年份（请替换为真实年份），d = 一句话简介 ===== */
+/* ===== 建筑信息 =====
+   y = 建成年份（暂无权威资料，统一留「待补充」，不臆造数字）
+   d = 简介：90 个点位逐条手写，每条不超过两句话，统一面向新生的口吻。
+      将来新增点位若不在表里，走下面的 fallbackDesc() 按业态兜底，保证不留白。 */
 var BUILDING_INFO = {
-  '重庆大学A区图书馆':   {y:'待补充', d:'自习与借阅的主战场，期末复习一座难求'},
-  '重庆大学A区主教学楼': {y:'待补充', d:'A 区最大的教学楼，大部分公共课在这里上'},
-  '重庆大学A区第一教学楼':{y:'待补充', d:'老牌教学楼，靠近正门，上课通勤最方便'},
-  '重庆大学A区民主湖':   {y:'待补充', d:'A 区的标志性景观湖，报到打卡必到'},
-  '重庆大学A区团结广场': {y:'待补充', d:'开学典礼与大型活动的举办地'},
-  '重庆大学A区思群广场': {y:'待补充', d:'宿舍区旁的活动广场，傍晚很热闹'},
-  '重庆大学A区体育馆':   {y:'待补充', d:'室内球馆与体育课场地，刷校园卡进场'},
-  '重庆大学A区钟塔':     {y:'待补充', d:'A 区地标钟塔，认路用它最靠谱'},
-  '重庆大学A区正门':     {y:'待补充', d:'沙坪坝校区主校门，地铁与公交都在这侧'},
-  '重庆大学A区校医院':   {y:'待补充', d:'看病首诊在这里，大学生医保也在窗口登记'},
-  '重庆大学A区研究生院': {y:'待补充', d:'研究生教务与培养相关事务办理处'},
-  '重庆大学虎溪校区图书馆':{y:'待补充', d:'虎溪校区地标建筑，自习位最多'},
-  '重庆大学虎溪校区综合楼':{y:'待补充', d:'虎溪教学与行政综合楼，新生报到常来'},
-  '重庆大学虎溪校区云湖': {y:'待补充', d:'虎溪的景观湖，环湖是散步首选'},
-  '重庆大学虎溪校区体育中心体育馆':{y:'待补充', d:'虎溪大型体育赛事与体测场地'},
-  '重庆大学虎溪校区北门': {y:'待补充', d:'虎溪主校门，校车与小绿都在这里发车'}
+  '重庆大学A区图书馆': {y:'待补充', d:'自习和借阅的主战场，期末一座难求。刷脸入馆，开放时间以馆内公告为准。'},
+  '重庆大学A区第一教学楼': {y:'待补充', d:'老牌教学楼，靠近正门，上课通勤最方便。教室编号按楼层排，先看楼层索引。'},
+  '重庆大学A区第五教学楼': {y:'待补充', d:'公共课常用教学楼，和六教、八教在同一片。换教室时记得留足十分钟。'},
+  '重庆大学A区第八教学楼': {y:'待补充', d:'紧邻五教、六教，属于同一片教学楼群。课后换教室别走错方向。'},
+  '重庆大学A区第六教学楼': {y:'待补充', d:'公共课和部分专业课在这里上。楼层不高，走楼梯通常比等电梯快。'},
+  '重庆大学A区主教学楼': {y:'待补充', d:'A 区最大的教学楼，连着 1—8 教，大一多数公共课在这里。建议开学前先来踩一次点。'},
+  '重庆大学A区民主湖': {y:'待补充', d:'A 区的老牌景观湖，湖边石凳是几代人的共同记忆。傍晚散步很舒服，夜里留意台阶。'},
+  '重庆大学A区团结广场': {y:'待补充', d:'开学典礼和大型活动的举办地。迷路时可以拿它当坐标重新找方向。'},
+  '重庆大学A区思群广场': {y:'待补充', d:'A 区的中心位置，社团招新和各类活动都在这儿。约人碰面默认说"思群"。'},
+  '重庆大学A区体育馆': {y:'待补充', d:'室内球馆和体育课场地，刷校园卡进场。场次安排看门口公告，晚上也有开放时段。'},
+  '重庆大学A区学生第一食堂': {y:'待补充', d:'A 区最早的学生食堂，刷校园卡就餐。早饭种类齐全，两分钟解决早课前的早餐。'},
+  '重庆大学A区柏树林美食城': {y:'待补充', d:'学生常去的就餐点，菜品种类多、出餐快。饭点会排队，错峰去更快。'},
+  '重庆大学A区民主湖美食城': {y:'待补充', d:'民主湖畔的食堂，吃完可以直接在湖边散步。二楼是常去的就餐区。'},
+  '重庆大学A区东林风味餐厅': {y:'待补充', d:'偏风味小炒的餐厅，适合几个人拼饭。价格比大食堂略高一点。'},
+  '重庆大学A区新华园教工餐厅': {y:'待补充', d:'原本面向教工，对学生也开放。菜色清淡，饭点人相对少。'},
+  '重庆大学A区逸夫楼': {y:'待补充', d:'以邵逸夫先生命名的教学楼，多用于专业课和小班课。教室不多，很好找。'},
+  '重庆大学A区学生九宿舍': {y:'待补充', d:'A 区的老牌宿舍楼，食堂就在一层，生活最方便。楼龄偏老，但胜在位置好。'},
+  '重庆大学A区学生c楼宿舍': {y:'待补充', d:'A 区宿舍楼之一，靠近生活区。门禁和热水时间以楼栋公告为准。'},
+  '重庆大学A区学生六宿舍': {y:'待补充', d:'本科生宿舍楼，离教学区不远。新生按学院分配，具体看迎新通知。'},
+  '重庆大学A区学生十一宿舍': {y:'待补充', d:'A 区宿舍楼，位置靠近食堂和生活配套。日常出入记得带校园卡。'},
+  '重庆大学A区学生十宿舍': {y:'待补充', d:'和十一舍在同一片，生活配套齐全。快递一般送到楼下指定点。'},
+  '重庆大学A区瑞幸咖啡': {y:'待补充', d:'课间买咖啡的地方，手机点单更省时间。两节课之间顺路带一杯刚刚好。'},
+  '重庆大学A区顺丰速运': {y:'待补充', d:'寄件和取件的服务点，凭取件码办理。中午和放学排队，建议错峰。'},
+  '重庆大学A区研究生院': {y:'待补充', d:'研究生培养和教务事务的办理点。本科生一般是办事或找导师才来。'},
+  '重庆大学A区理科楼': {y:'待补充', d:'理科课程和实验的主要场地。涉及实验的课记得穿长裤、不穿拖鞋。'},
+  '重庆大学A区南1门': {y:'待补充', d:'靠近南侧的校门，去食堂和宿舍区都方便。出入刷校园卡或刷脸。'},
+  '重庆大学A区中门': {y:'待补充', d:'A 区常用的侧门，离宿舍区更近。晚上关门时间留意安保通知。'},
+  '重庆大学A区正门': {y:'待补充', d:'沙坪坝校区的主校门，地铁和公交都在这一侧。新生报到一般从这里进校。'},
+  '重庆大学A区民主湖学术报告厅': {y:'待补充', d:'湖边的报告厅，讲座、答辩和小型演出常在这里。活动一般提前发在年级群。'},
+  '重庆大学A区艺术学院': {y:'待补充', d:'艺术类专业的教学楼，走廊常能看到学生作品。来找老师建议先预约。'},
+  '重庆大学A区美视电影学院': {y:'待补充', d:'影视相关专业的教学和实践楼，常有拍摄作业。遇到拍摄请不要打扰。'},
+  '重庆大学A区校医院': {y:'待补充', d:'看病首诊的地方，大学生医保也在这儿登记。带上校园卡和身份证，能按规定报销。'},
+  '重庆大学A区博雅学院': {y:'待补充', d:'博雅（通识）教育的教学与办公点。相关书院课程和活动在这里。'},
+  '重庆大学A区钟塔': {y:'待补充', d:'A 区的地标建筑，认路用它最靠谱。拍照打卡也常选这里。'},
+  '重庆大学A区寅初亭': {y:'待补充', d:'纪念马寅初先生的亭子，校园里安静的一角。路过可以坐一会儿。'},
+  '重庆大学A区重庆大学站': {y:'待补充', d:'校内交通站点，校园巴士经停这里。赶车前先看清站牌上的班次表。'},
+  '重庆大学B区第二综合楼': {y:'待补充', d:'B 区的教学与办公综合楼，部分院系在这里。办事可以顺路一次跑完。'},
+  '重庆大学B区毛泽东雕像': {y:'待补充', d:'B 区的标志性雕像，周围是常走的路口。约人碰面可以拿它当坐标。'},
+  '重庆大学B区学生二食堂': {y:'待补充', d:'B 区的主要食堂，日常就餐刷校园卡。住在 B 区的话来这里最方便。'},
+  '重庆大学B区图书馆': {y:'待补充', d:'B 区的自习去处，人比 A 馆少一些。一样刷校园卡入馆，适合避开人潮。'},
+  '重庆大学B区足球场': {y:'待补充', d:'B 区的足球和田径场地，体育课和体测在这儿。傍晚人最多，踢球记得早点占场。'},
+  '重庆大学B区科苑戴斯酒店': {y:'待补充', d:'校内酒店，主要接待来访专家和家长。家长来校可以咨询这里的住宿。'},
+  '重庆大学B区材料楼': {y:'待补充', d:'材料相关院系的教学和实验楼。进实验室要按规定穿戴，别穿拖鞋。'},
+  '重庆大学B区校医院': {y:'待补充', d:'B 区的校内医疗点，日常小病可以先来。夜间和急症按公告指引处理。'},
+  '重庆大学B区生物工程学院': {y:'待补充', d:'生物工程专业的教学和实验楼。部分实验室对本科生开放。'},
+  '重庆大学B区一宿舍': {y:'待补充', d:'B 区的学生宿舍楼，离二食堂很近。门禁时间留意宿管的通知。'},
+  '重庆大学B区科学会堂': {y:'待补充', d:'B 区的礼堂，讲座、演出和开学典礼相关活动在这里。活动信息一般提前发年级群。'},
+  '重庆大学B区韵达快递': {y:'待补充', d:'B 区的快递收发点，凭短信取件码取件。包裹多的时候留意货架分区。'},
+  '重庆大学B区羽毛球场': {y:'待补充', d:'露天羽毛球场，下课后来打球的人不少。球拍自带，风大的时候不太好打。'},
+  '重庆大学B区建工馆': {y:'待补充', d:'土木、建筑类专业的教学和实践场地。楼里常能看到学生做的模型和展板。'},
+  '重庆大学B区西南门': {y:'待补充', d:'B 区靠西南的校门，去后街吃饭最方便。晚上关得早，注意时间。'},
+  '重庆大学B区正门': {y:'待补充', d:'B 区的主校门，人流量最大。外来车辆从这边登记入校。'},
+  '重庆大学B区实验楼': {y:'待补充', d:'B 区的实验教学楼，实验课的主要场地。课前把实验报告写好很重要。'},
+  '重庆大学C区一教学楼': {y:'待补充', d:'C 区主要的教学楼，规模不大。来这边上课一般是特定专业，跟着课表走就行。'},
+  '重庆大学C区菜鸟驿站': {y:'待补充', d:'C 区的快递集中点，用菜鸟 App 扫码出库。首次取件记得带身份证核验。'},
+  '重庆大学C区集资楼': {y:'待补充', d:'C 区的住宅性质楼宇，周边配套较少。来这边一般是办事，建议提前看好路线。'},
+  '重庆大学C区东门': {y:'待补充', d:'C 区的主要出入口，紧邻教学楼。出入记得带校园卡。'},
+  '重庆大学虎溪校区图书馆': {y:'待补充', d:'虎溪的地标建筑，自习位最多、开放时间也长。期末复习的主阵地。'},
+  '重庆大学虎溪校区乘车站': {y:'待补充', d:'校园巴士和小绿的发车点，去其他校区从这里上车。班次表贴在站牌上，赶时间请提前候车。'},
+  '重庆大学虎溪校区综合楼': {y:'待补充', d:'虎溪的教学与行政综合楼，新生报到常在这里。办手续前先看楼层索引。'},
+  '重庆大学虎溪校区理科大楼': {y:'待补充', d:'理科类课程和实验的主要场地。第一次进实验室务必听清安全要求。'},
+  '重庆大学虎溪校区霸王茶姬': {y:'待补充', d:'校内饮品店，下课后来买的人不少。提前手机下单，做好直接取。'},
+  '重庆大学虎溪校区荷园': {y:'待补充', d:'虎溪的宿舍园区之一，离运动场很近，晚上回寝要刷门禁。'},
+  '重庆大学虎溪校区兰园': {y:'待补充', d:'虎溪宿舍园区，靠近教学区和食堂。快递和外卖一般送到园区门口。'},
+  '重庆大学虎溪校区药学院': {y:'待补充', d:'药学专业的教学和实验楼。实验课安全要求严格，务必听清规则。'},
+  '重庆大学虎溪校区艺术楼': {y:'待补充', d:'艺术类专业的教学楼，走廊常有学生作品展示。路过可以进去看看。'},
+  '重庆大学虎溪校区学生交叉创新中心': {y:'待补充', d:'跨学科实践和创新的活动场地，社团和项目常在这里。想做科创项目可以来问问。'},
+  '重庆大学虎溪校区松园运动场': {y:'待补充', d:'松园片区的运动场地，跑步和球类活动都能进行。晚上有照明，适合课后锻炼。'},
+  '重庆大学虎溪校区第一教学楼': {y:'待补充', d:'虎溪最常用的教学楼之一，大一公共课多在这里。楼大教室多，提前看好教室号。'},
+  '重庆大学虎溪校区菜鸟驿站': {y:'待补充', d:'虎溪片区的快递驿站，扫码出库取件。放学高峰排长队，错峰来更快。'},
+  '重庆大学虎溪校区科学中心': {y:'待补充', d:'科研与实验的综合楼，部分科普活动对外开放。相关专业的同学会常来。'},
+  '重庆大学虎溪校区梅园': {y:'待补充', d:'虎溪宿舍园区之一，环境安静。走到教学楼大约十分钟。'},
+  '重庆大学虎溪校区竹园': {y:'待补充', d:'竹园背后就是竹园食堂，吃饭最方便的园区。也是新生常用的宿舍区之一。'},
+  '重庆大学虎溪校区竹园食堂': {y:'待补充', d:'竹园片区的食堂，离宿舍区最近。下楼就能吃，早午饭选择不少。'},
+  '重庆大学虎溪校区校医院': {y:'待补充', d:'虎溪的校医院，看门诊和开药都在这里。急诊电话建议先存进手机。'},
+  '重庆大学虎溪校区智慧树': {y:'待补充', d:'虎溪校园里的景观装置，拍照很出片。晚上灯光效果更好看。'},
+  '重庆大学虎溪校区老门柱广场': {y:'待补充', d:'保留着老校门柱子的广场，是虎溪的打卡点。新生合影常选这里。'},
+  '重庆大学虎溪校区云湖': {y:'待补充', d:'虎溪的景观湖，环湖一圈适合跑步和散步。晚上光线暗，建议结伴走主路。'},
+  '重庆大学虎溪校区软件学院': {y:'待补充', d:'软件工程专业的教学楼，机房实验课较多。按老师要求带好 U 盘。'},
+  '重庆大学虎溪校区体育中心体育馆': {y:'待补充', d:'虎溪的大型体育场馆，赛事、体测和大型活动都在这里。进场刷卡，看公告确认开放时段。'},
+  '重庆大学虎溪校区信息技术科研楼': {y:'待补充', d:'信息类学科的科研和实验楼。专业课与实验室课程多安排在这里。'},
+  '重庆大学虎溪校区松园': {y:'待补充', d:'虎溪较大的宿舍片区之一，紧邻松园运动场。快递点在园区门口，留意取件通知。'},
+  '重庆大学虎溪校区大学生活动中心': {y:'待补充', d:'社团活动、排练和学生事务办理的地方。开学后的社团招新也在这一带。'},
+  '重庆大学虎溪校区北门': {y:'待补充', d:'虎溪的主校门，校车和小绿都从这里发车。去大学城地铁站也走这边。'},
+  '重庆大学虎溪校区东门': {y:'待补充', d:'虎溪靠东侧的校门，是生活区出入口之一。骑共享单车进出更方便。'},
+  '重庆大学两江校区2号门': {y:'待补充', d:'两江校区的出入口之一，靠近教学楼区域。进出按校区规定刷卡。'},
+  '重庆大学两江校区丰巢快递柜': {y:'待补充', d:'24 小时自助快递柜，凭取件码开箱。超时会收保管费，记得及时取件。'},
+  '重庆大学两江校区B楼': {y:'待补充', d:'两江校区的教学科研楼之一。来这边上课通常是特定培养环节。'},
+  '重庆大学两江校区国家卓越工程师学院A楼': {y:'待补充', d:'卓越工程师培养的教学楼，侧重工程实践。校企联合课程多安排在这里。'},
+  '重庆大学两江校区明月湖科创园总部': {y:'待补充', d:'两江校区的科创园区，偏实践和校企联合培养。相关专业的同学会常来。'},
 };
-/* 按类型兜底生成简介，避免留白 */
+
+/* 新加点位的兜底文案：按业态给一句自然的话，避免「这是某某楼」这种拼接腔 */
 function fallbackDesc(name){
-  if(/食堂|餐厅|美食城|咖啡/.test(name)) return '校内就餐点，校园卡直接刷卡';
-  if(/宿舍|舍/.test(name))   return '学生宿舍楼，一楼有门禁与宿管值班';
-  if(/教学楼|大楼|楼$/.test(name)) return '教学与自习楼栋，课表上的教室大多在这';
-  if(/图书馆/.test(name))    return '借阅与自习场所，考试周延长开放';
-  if(/体育馆|运动场|球场/.test(name)) return '运动场地，体育课与体测在这里';
-  if(/门/.test(name))        return '校园出入口，校外交通接驳点';
-  if(/快递|驿站|丰巢|顺丰|韵达/.test(name)) return '快递收发点，取件记得带取件码';
-  if(/校医院/.test(name))    return '校内医疗点，首诊与医保登记都在这';
-  if(/广场/.test(name))      return '校园开放空间，活动与集合常用地';
-  if(/湖/.test(name))        return '校园景观湖，休闲散步的好去处';
-  return '校园地点，点「导航到此」可直接带路';
+  if(/图书馆/.test(name))                return '借阅和自习的场所，考试周通常延长开放。进馆记得带校园卡。';
+  if(/食堂|餐厅|美食城/.test(name))       return '校内就餐点，刷校园卡就能吃。饭点人多，错峰去更快。';
+  if(/咖啡|茶姬|饮品|奶茶/.test(name))    return '课间买饮品的地方，手机点单更省时间。';
+  if(/宿舍|舍|园$/.test(name))            return '学生宿舍片区，一楼有门禁和宿管值班。晚上记得按时回寝。';
+  if(/教学楼|大楼|楼$/.test(name))        return '上课的主要教学楼，教室以课表为准。第一次去建议提前十分钟。';
+  if(/体育馆|运动场|球场/.test(name))     return '体育课和日常锻炼的运动场地。一般刷卡进场，开放时间看场馆公告。';
+  if(/快递|驿站|丰巢|顺丰|韵达/.test(name)) return '快递收发点，凭取件码取件。放学时段排队，建议错峰。';
+  if(/校医院/.test(name))                return '看病首诊的地方，大学生医保也在这里登记。带上校园卡和身份证。';
+  if(/广场/.test(name))                  return '校园开放空间，活动和集合常用地。约人碰面可以拿它当坐标。';
+  if(/湖/.test(name))                    return '校园景观湖，适合散步放松。晚上光线暗，建议结伴走主路。';
+  if(/门$/.test(name))                    return '校园出入口，进出刷校园卡或刷脸。晚上关门时间留意安保通知。';
+  return '校园里的一个地点，点「🚶 步行去这儿」可以直接带路过去。';
 }
+
 function zoneOf(name){
   if(name.indexOf('A区') >= 0) return 'A 区';
   if(name.indexOf('B区') >= 0) return 'B 区';
@@ -152,6 +295,19 @@ function getInfo(name){
   return {zone:zoneOf(name), y:b.y || '待补充', d:b.d || fallbackDesc(name)};
 }
 
+/* ===== 安全：HTML 转义 =====
+   凡是拼进 HTML 字符串（元素内容 或 属性值）的动态文本，一律先过这里。
+   地图点位名称现在来自内置常量，但一旦将来换成后台返回 / URL 传入的数据，
+   没有这层转义就是标准的 DOM XSS。防御写在使用处，而不是写在使用者的记性里。 */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /* ===== 单一自定义弹窗卡片 ===== */
 var infoWindow = new AMap.InfoWindow({
   isCustom: true,
@@ -163,24 +319,107 @@ function navUrl(name, pos){
   return 'https://uri.amap.com/marker?position=' + pos[0] + ',' + pos[1] +
          '&name=' + encodeURIComponent(name) + '&src=cqu&coordinate=gaode&callnative=1';
 }
-function open3d(name){ window.open('3d.html?b=' + encodeURIComponent(name), '_blank'); }
+/* ===== 3D 模型登记 =====
+   目前 library.glb 只是个体块占位，没有一栋建筑有真实模型 —— 所以这张表现在是空的，
+   卡片上的「查看3D模型」按钮会全部隐藏，避免出现"点进去是空的"。
+   做好真实模型后，按下面格式登记一行，按钮就会自动出现在对应建筑的卡片上：
+     '重庆大学A区图书馆': 'library.glb',
+     '重庆大学虎溪校区图书馆': 'huxi-library.glb' */
+var MODELS_3D = {};
+function hasModel(name){ return !!MODELS_3D[name]; }
+function modelUrl(name){ return MODELS_3D[name] || ''; }
+function open3d(name){
+  var m = modelUrl(name);
+  if(!m) return;                      // 没登记模型就不跳转，宁可不显示也别开出空页面
+  window.open('3d.html?b=' + encodeURIComponent(name) + '&m=' + encodeURIComponent(m), '_blank', 'noopener');
+}
+
+/* ===== 导航：手机优先唤起高德 App，失败降级网页版，全程不覆盖当前页面 ===== */
+function isMobileUA(){
+  return /Android|iPhone|iPad|iPod|HarmonyOS|Windows Phone|Mobile/i.test(navigator.userAgent || '');
+}
+/* 高德 URI API 的 App scheme（iOS / Android 各一套），用于直接拉起客户端。
+   注意：这里的字段名来自高德公开文档，我在桌面环境无法对真机做实机验证，
+   上线前请在 Android 与 iPhone 各点一次确认；即便 scheme 失效，下面也有降级路径，功能不会丢。 */
+function appScheme(name, pos){
+  var ua  = navigator.userAgent || '';
+  var base = /iPhone|iPad|iPod/i.test(ua) ? 'iosamap://' : 'androidamap://';
+  return base + 'viewMap?sourceApplication=' + encodeURIComponent('重大校园地图') +
+         '&poiname=' + encodeURIComponent(name) +
+         '&lat=' + pos[1] + '&lon=' + pos[0] + '&dev=0';
+}
+/* 用隐藏 iframe 触发唤起：iframe 里的跳转不会动父页面，因此无论如何都不会覆盖当前页面。
+   （代价是 iOS 某些版本会拦截 iframe 唤起，这时会走下面的降级分支。） */
+function launchAppOrWeb(name, pos){
+  var web = navUrl(name, pos);
+  if(!isMobileUA()){ window.open(web, '_blank', 'noopener'); return; }
+  var app = appScheme(name, pos);
+  var launched = false;
+  function markLaunched(){ launched = true; }
+  document.addEventListener('visibilitychange', markLaunched);
+  window.addEventListener('pagehide', markLaunched);
+
+  var ifr = document.createElement('iframe');
+  ifr.style.display = 'none';
+  ifr.setAttribute('src', app);
+  document.body.appendChild(ifr);
+
+  setTimeout(function(){
+    document.removeEventListener('visibilitychange', markLaunched);
+    window.removeEventListener('pagehide', markLaunched);
+    if(ifr.parentNode) ifr.parentNode.removeChild(ifr);
+    if(!launched){                                   // 页面还在前台 = 没唤起成功
+      window.open(web, '_blank', 'noopener');        // 降级：新窗口打开网页版，当前页不受影响
+    }
+  }, 1500);
+}
 function cardHtml(name, pos){
   var it = getInfo(name);
-  /* 照片位：把下面这个 div.iw-photo 整块换成
+  /* 安全要点：
+     ① 名称 / 简介等全部走 esc() 转义后再拼串；
+     ② 按钮不再把名称拼进 onclick 的 JS 字符串（那样既要操心引号又要操心转义），
+        改为写进 data-name 属性（同样转义），点击时由 DOM 读回。
+     照片位：把下面这个 div.iw-photo 整块换成
      <img src="photos/建筑名.jpg" style="width:100%;height:120px;object-fit:cover;display:block"> 即可 */
   return '<div class="iw-card" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">' +
     '<div class="iw-photo"><div class="ic">🏛️</div><div class="tx">实拍图占位 · 待替换</div></div>' +
     '<button class="iw-x" onclick="event.stopPropagation();closeInfo()">✕</button>' +
     '<div class="iw-body">' +
-      '<div class="iw-name">' + name + '</div>' +
-      '<div class="iw-meta">📍 ' + it.zone + ' · 建成 ' + it.y + '</div>' +
-      '<div class="iw-desc">' + it.d + '</div>' +
+      '<div class="iw-name">' + esc(name) + '</div>' +
+      '<div class="iw-meta">📍 ' + esc(it.zone) + ' · 建成 ' + esc(it.y) + '</div>' +
+      '<div class="iw-desc">' + esc(it.d) + '</div>' +
       '<div class="iw-btns">' +
-        '<a class="iw-btn nav" target="_blank" rel="noopener noreferrer" href="' + navUrl(name, pos) + '">📍 导航到此</a>' +
-        '<button class="iw-btn m3d" onclick="event.stopPropagation();open3d(\'' + name.replace(/'/g, '') + '\')">🏛️ 查看3D模型</button>' +
+        '<button class="iw-btn nav" data-name="' + esc(name) + '" data-lng="' + esc(pos[0]) + '" data-lat="' + esc(pos[1]) + '" ' +
+          'onclick="event.stopPropagation();navFrom(this)">📍 导航到此</button>' +
+        '<button class="iw-btn walk" data-name="' + esc(name) + '" data-lng="' + esc(pos[0]) + '" data-lat="' + esc(pos[1]) + '" ' +
+          'onclick="event.stopPropagation();planWalkFrom(this)">🚶 步行去这儿</button>' +
       '</div>' +
+      (hasModel(name)
+        ? '<div class="iw-btns"><button class="iw-btn m3d" data-name="' + esc(name) + '" ' +
+          'onclick="event.stopPropagation();open3dFrom(this)">🏛️ 查看3D模型</button></div>'
+        : '') +
     '</div>' +
   '</div>';
+}
+/* 从被点击的按钮上读回参数（替代字符串拼接式 onclick） */
+function NavParams(el){
+  return {
+    name: el.getAttribute('data-name') || '',
+    lng:  parseFloat(el.getAttribute('data-lng')),
+    lat:  parseFloat(el.getAttribute('data-lat'))
+  };
+}
+function navFrom(el){
+  if(!el) return;
+  var p = NavParams(el);
+  launchAppOrWeb(p.name, [p.lng, p.lat]);
+}
+function planWalkFrom(el){
+  if(!el) return;
+  planWalk(el.getAttribute('data-name') || '', parseFloat(el.getAttribute('data-lng')), parseFloat(el.getAttribute('data-lat')));
+}
+function open3dFrom(el){
+  if(el) open3d(el.getAttribute('data-name') || '');
 }
 function openInfo(name, position){
   infoWindow.setContent(cardHtml(name, position));
@@ -188,6 +427,97 @@ function openInfo(name, position){
 }
 /* 点地图空白处关闭弹窗 */
 map.on('click', function(){ infoWindow.close(); });
+
+/* ===== 🚶 步行路径规划（AMap.Walking）=====
+   起点：默认取地图中心；在地图上「右键 / 长按」可自定义起点（蓝色「起」标记）
+   终点：卡片里的建筑点位；结果条显示距离与预计时间，并可跳转高德 App 导航 */
+var walking = null, startPoint = null, startMarker = null;
+var routeBar = document.getElementById('routeBar');
+var routeTarget = null;                 // 当前规划路线的终点，供「高德导航」按钮使用
+
+function rbEl(id){ return document.getElementById(id); }
+function navRouteFromBar(){
+  if(routeTarget) launchAppOrWeb(routeTarget.name, routeTarget.pos);
+}
+function mapCenter(){
+  var c = map.getCenter();
+  return [c.getLng(), c.getLat()];
+}
+function ensureWalking(cb){
+  if(walking){ cb(); return; }
+  try{
+    AMap.plugin(['AMap.Walking'], function(){
+      try{
+        walking = new AMap.Walking({map: map, panel: null, autoFitView: false, hideMarkers: true});
+      }catch(e){
+        try{ walking = new AMap.Walking({map: map, panel: null, autoFitView: false}); }catch(e2){}
+      }
+      cb();
+    });
+  }catch(e){ cb(); }
+}
+function setStart(pos, label){
+  startPoint = pos;
+  if(startMarker){ map.remove(startMarker); startMarker = null; }
+  startMarker = new AMap.Marker({
+    position: pos,
+    content: '<div class="start-pin">起</div>',
+    offset: new AMap.Pixel(-13, -13),
+    zIndex: 300
+  });
+  map.add(startMarker);
+  setTip('📍 起点已设为「' + label + '」，点卡片里的「🚶 步行去这儿」看路线');
+}
+function clearStart(){
+  startPoint = null;
+  if(startMarker){ map.remove(startMarker); startMarker = null; }
+  setTip();
+}
+function clearRoute(){
+  try{ if(walking) walking.clear(); }catch(e){}
+  if(routeBar) routeBar.hidden = true;
+  setTip();
+}
+function planWalk(name, lng, lat){
+  var end = [lng, lat];
+  var from = startPoint || mapCenter();
+  ensureWalking(function(){
+    try{ if(walking) walking.clear(); }catch(e){}
+    setTip('🚶 正在规划到「' + name + '」的步行路线…');
+    try{
+      walking.search(from, end, function(status, result){
+        if(status !== 'complete' || !result || !result.routes || !result.routes.length){
+          setTip('⚠️ 这段路步行规划不出来（可能跨校区太远），先切到目标所在的校区再试');
+          return;
+        }
+        var r = result.routes[0];
+        var dist = r.distance || 0;
+        var mins = Math.max(1, Math.round((r.time || 0) / 60));
+        var dTxt = dist >= 1000 ? (dist / 1000).toFixed(1) + ' 公里' : dist + ' 米';
+        rbEl('rbDist').textContent = dTxt;
+        rbEl('rbTime').textContent = mins + ' 分钟';
+        rbEl('rbSub').textContent = (startPoint ? '自定义起点' : '地图中心') + ' → ' + name;
+        /* 路线条上的「高德导航」点击后走同一套唤起逻辑（App 优先，失败降级网页版） */
+        routeTarget = {name: name, pos: end};
+        routeBar.hidden = false;
+        setTip('🚶 步行 ' + dTxt + ' · 约 ' + mins + ' 分钟（右键 / 长按地图可改起点）');
+      });
+    }catch(e){
+      setTip('⚠️ 路径规划插件没加载成功，刷新页面再试');
+    }
+  });
+}
+/* 自定义起点：PC 右键 / 移动端长按 */
+try{
+  map.on('rightclick', function(e){
+    if(e && e.lnglat) setStart([e.lnglat.getLng(), e.lnglat.getLat()], '右键位置');
+  });
+}catch(e){}
+try{
+  map.on('longpress', function(e){
+    if(e && e.lnglat) setStart([e.lnglat.getLng(), e.lnglat.getLat()], '长按位置');
+  });
+}catch(e){}
 
 /* ===== 🎬 校园漫游：依次飞到标志建筑，zoom 17，每个停 2 秒，结束回初始视角 ===== */
 var ROAM = [
@@ -245,7 +575,9 @@ function stopRoam(finished){
   }
 }
 if(roamBtn) roamBtn.addEventListener('click', function(){ roaming ? stopRoam(false) : startRoam(); });
+
 var pointCount = 0;
+var POINTS = [];      // 解析后的点位：[{name, pos:[lng,lat]}, ...]
 var data = `重庆大学A区图书馆，106.468179,29.565475
 重庆大学A区第一教学楼，106.461214,29.567605
 重庆大学A区第五教学楼，106.466924,29.5663
@@ -342,16 +674,81 @@ data.trim().split('\n').forEach(function(line){
   var p = line.split(/[ ， , ]/);
   var position = [parseFloat(p[1]), parseFloat(p[2])];
   pointCount++;
-  var marker = new AMap.Marker({
-  position: position,
-  label: {content: p[0], direction: 'top'}
+  POINTS.push({name: p[0], pos: position});
 });
-marker.on('click', function(){
-  openInfo(p[0], position);
+
+/* ===== 分级渲染：低级别聚合、高级别才显示文字标签 =====
+   90 个点位全画标签会糊成一片，所以：
+   · zoom < LABEL_ZOOM  → 只画普通图钉（无文字），并且把相邻点按网格合并成一个聚合点
+   · zoom >= LABEL_ZOOM → 每个点独立显示，并带上文字标签
+   如果 A 区在 16 级下仍觉得密，把 LABEL_ZOOM 调成 17 即可，只改这一个常量。 */
+var LABEL_ZOOM = 16;
+/* 各缩放级别下的网格边长（单位：度）。级别越低格子越大，合并得越狠 */
+var ZOOM_CELL = {10:0.10, 11:0.06, 12:0.035, 13:0.018, 14:0.009, 15:0.0045};
+function cellFor(zoom){
+  if(ZOOM_CELL[zoom] !== undefined) return ZOOM_CELL[zoom];
+  return zoom < 10 ? 0.10 : 0;          // >= LABEL_ZOOM 返回 0，表示不聚合
+}
+var layerMarkers = [];                  // 当前画在图上的标记（原始点 或 聚合点）
+function clearLayer(){
+  layerMarkers.forEach(function(m){ try{ map.remove(m); }catch(e){} });
+  layerMarkers = [];
+}
+function addPointMarker(p, withLabel){
+  var opt = {position: p.pos, title: p.name};
+  /* 高德 Marker 的 label.content 是按 HTML 渲染的，等同于一次 innerHTML —— 必须转义 */
+  if(withLabel) opt.label = {content: esc(p.name), direction: 'top'};
+  var m = new AMap.Marker(opt);
+  m.on('click', function(){ openInfo(p.name, p.pos); });
+  layerMarkers.push(m);
+  map.add(m);
+}
+function renderLayer(){
+  clearLayer();
+  var z = Math.round(map.getZoom());
+  var cell = cellFor(z);
+  if(cell > 0){
+    /* ---- 聚合模式：按网格分桶 ---- */
+    var clusters = {}, keys = [];
+    POINTS.forEach(function(p){
+      var k = Math.floor(p.pos[0] / cell) + '|' + Math.floor(p.pos[1] / cell);
+      if(!clusters[k]){ clusters[k] = {n:0, lng:0, lat:0, items:[]}; keys.push(k); }
+      var c = clusters[k];
+      c.n++; c.lng += p.pos[0]; c.lat += p.pos[1]; c.items.push(p);
+    });
+    keys.forEach(function(k){
+      var c = clusters[k];
+      var center = [c.lng / c.n, c.lat / c.n];
+      if(c.n === 1){ addPointMarker(c.items[0], false); return; }   // 单点的桶直接画普通图钉
+      var m = new AMap.Marker({
+        position: center,
+        content: '<div class="clu"><b>' + c.n + '</b><i>个地点</i></div>',
+        offset: new AMap.Pixel(-26, -26),
+        zIndex: 150
+      });
+      m.on('click', function(){
+        setTip('🔍 这一带有 ' + c.n + ' 个地点，正在放大展开');
+        map.setZoomAndCenter(Math.min(18, z + 2), center);
+      });
+      layerMarkers.push(m);
+      map.add(m);
+    });
+    setTip('🔍 已按区域合并成 ' + keys.length + ' 个聚合点，放大到第 ' + LABEL_ZOOM + ' 级看具体名称');
+  }else{
+    /* ---- 展开模式：每个点独立 + 文字标签 ---- */
+    POINTS.forEach(function(p){ addPointMarker(p, true); });
+    setTip();
+  }
+}
+map.on('zoomend', function(){
+  /* 轻微防抖，避免连续缩放时反复重绘 */
+  if(window.__renderTimer) clearTimeout(window.__renderTimer);
+  window.__renderTimer = setTimeout(renderLayer, 80);
 });
-map.add(marker);
-});
-setTip();
+renderLayer();
 </script>
+<!-- 隐私声明 -->
+<div class="privacy">本页面不收集任何个人信息，地图服务由第三方地图服务商提供</div>
+
 </body>
 </html>
