@@ -63,6 +63,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .iw-btn.m3d{background:linear-gradient(135deg,#D8A44F,#B8860B);color:#fff}
 .iw-btn.walk{background:linear-gradient(135deg,#2B7FF0,#1863CC);color:#fff}
 
+/* ===== 宿舍档案卡：床位 / 卫浴 / 空调 / 电梯 / 最近食堂 / 老生提示 ===== */
+.iw-dorm{margin-top:8px;padding:8px 9px;border-radius:10px;background:#F7F8FA;border:1px solid rgba(31,36,48,.07)}
+.iw-dorm .d-t{font-size:11px;font-weight:800;color:#7D181B;letter-spacing:.5px;margin-bottom:6px}
+.iw-dorm .d-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.iw-dorm .d-cell{background:#fff;border-radius:8px;padding:5px 7px;min-width:0}
+.iw-dorm .d-k{font-size:10px;color:#7A838F;line-height:1.3}
+.iw-dorm .d-v{font-size:12px;font-weight:800;color:#1F242C;line-height:1.35;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iw-dorm .d-v.na{color:#B4B2A9;font-weight:700}
+.iw-dorm .d-eat{margin-top:5px;background:#fff;border-radius:8px;padding:5px 7px}
+.iw-dorm .d-tip{margin-top:6px;font-size:11px;line-height:1.5;color:#4A5158;
+  background:#FFF6E5;border-radius:8px;padding:6px 8px}
+.iw-dorm .d-tip b{color:#A01F23}
+
 /* ===== 起点标记 + 步行路线结果条 ===== */
 .start-pin{width:26px;height:26px;border-radius:50%;background:#2B7FF0;color:#fff;font-size:12px;
   font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;
@@ -373,6 +387,46 @@ function launchAppOrWeb(name, pos){
     }
   }, 1500);
 }
+/* ===== 宿舍档案 =====
+   数据内置在前端数组里，直接改这张表即可，不需要动渲染逻辑。
+   说明：房型 / 电梯这类每年可能调整的字段，值里统一带「以入住通知为准」，
+   避免把临时信息写成板上钉钉的事实；拿到准确数据后把对应值替换掉即可。
+   room=房型  bath=卫浴  ac=空调  lift=电梯  eat=最近食堂  tip=老生提示 */
+var DORM_INFO = {
+  '重庆大学A区学生九宿舍':   {room:'4 人间 · 以入住通知为准', bath:'公共卫浴', ac:'有空调', lift:'待核实', eat:'一食堂（楼下）', tip:'离八教最近，早八首选，冬天能多睡十分钟。'},
+  '重庆大学A区学生c楼宿舍':  {room:'4 人间 · 以入住通知为准', bath:'公共卫浴', ac:'有空调', lift:'待核实', eat:'民主湖美食城',     tip:'靠生活区一侧，取快递和买夜宵都方便。'},
+  '重庆大学A区学生六宿舍':   {room:'4 人间 · 以入住通知为准', bath:'公共卫浴', ac:'有空调', lift:'待核实', eat:'柏树林美食城',     tip:'离教学区不远，但回寝要爬一段坡，夏天慢点走。'},
+  '重庆大学A区学生十宿舍':   {room:'4 人间 · 以入住通知为准', bath:'公共卫浴', ac:'有空调', lift:'待核实', eat:'一食堂',           tip:'和十一舍挨着，新生常分在这一片，串门很近。'},
+  '重庆大学A区学生十一宿舍': {room:'4 人间 · 以入住通知为准', bath:'公共卫浴', ac:'有空调', lift:'待核实', eat:'一食堂',           tip:'靠近食堂和生活配套，下楼就能解决三餐。'},
+  '重庆大学B区一宿舍':       {room:'4 人间 · 以入住通知为准', bath:'公共卫浴', ac:'有空调', lift:'待核实', eat:'B 区二食堂',       tip:'B 区宿舍离二食堂最近，早课前来得及吃碗小面。'},
+  '重庆大学虎溪校区竹园':     {room:'4 人间 · 以入住通知为准', bath:'独立卫浴', ac:'有空调', lift:'有电梯', eat:'竹园食堂',         tip:'背后就是竹园食堂，吃饭最省事的一个园区。'},
+  '重庆大学虎溪校区兰园':     {room:'4 人间 · 以入住通知为准', bath:'独立卫浴', ac:'有空调', lift:'有电梯', eat:'竹园食堂',         tip:'靠近教学区，早上不用赶很久；快递在园区门口取。'},
+  '重庆大学虎溪校区松园':     {room:'4 人间 · 以入住通知为准', bath:'独立卫浴', ac:'有空调', lift:'有电梯', eat:'竹园食堂',         tip:'紧邻松园运动场，夜跑完直接回寝，记得带门禁卡。'},
+  '重庆大学虎溪校区梅园':     {room:'4 人间 · 以入住通知为准', bath:'独立卫浴', ac:'有空调', lift:'有电梯', eat:'梅园周边餐点',     tip:'园区最安静的一档，适合想早睡的同学。'},
+  '重庆大学虎溪校区荷园':     {room:'4 人间 · 以入住通知为准', bath:'独立卫浴', ac:'有空调', lift:'有电梯', eat:'荷园周边餐点',     tip:'离运动场近，晚上打球方便，回寝别错过门禁。'}
+};
+
+function isDorm(name){ return !!DORM_INFO[name]; }
+/* 档案卡 HTML：全部字段走 esc()，跟卡片其他部分保持一致 */
+function dormHtml(name){
+  var d = DORM_INFO[name];
+  if(!d) return '';
+  function cell(k, v){
+    var na = (v === '待核实');
+    return '<div class="d-cell"><div class="d-k">' + esc(k) + '</div>' +
+           '<div class="d-v' + (na ? ' na' : '') + '">' + esc(v) + '</div></div>';
+  }
+  return '<div class="iw-dorm">' +
+    '<div class="d-t">🏠 宿舍档案</div>' +
+    '<div class="d-grid">' +
+      cell('房型', d.room) + cell('卫浴', d.bath) +
+      cell('空调', d.ac)   + cell('电梯', d.lift) +
+    '</div>' +
+    '<div class="d-eat"><div class="d-k">最近食堂</div>' +
+      '<div class="d-v">' + esc(d.eat) + '</div></div>' +
+    '<div class="d-tip"><b>老生提示 · </b>' + esc(d.tip) + '</div>' +
+  '</div>';
+}
 function cardHtml(name, pos){
   var it = getInfo(name);
   /* 安全要点：
@@ -388,6 +442,7 @@ function cardHtml(name, pos){
       '<div class="iw-name">' + esc(name) + '</div>' +
       '<div class="iw-meta">📍 ' + esc(it.zone) + ' · 建成 ' + esc(it.y) + '</div>' +
       '<div class="iw-desc">' + esc(it.d) + '</div>' +
+      (isDorm(name) ? dormHtml(name) : '') +
       '<div class="iw-btns">' +
         '<button class="iw-btn nav" data-name="' + esc(name) + '" data-lng="' + esc(pos[0]) + '" data-lat="' + esc(pos[1]) + '" ' +
           'onclick="event.stopPropagation();navFrom(this)">📍 导航到此</button>' +
